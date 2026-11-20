@@ -1,0 +1,130 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{eso-pic}
+\usepackage[top=3cm,bottom=3cm,left=2.5cm,right=2.5cm,headsep=10pt,letterpaper]{geometry}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{mathrsfs, amsmath}
+\usepackage{listings}
+\usepackage{indentfirst}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\lstset{language = MATLAB}
+\usepackage{abstract}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{bigints}
+
+\begin{document}
+
+\newpage
+\newpage
+\newtheorem{theorem}{Theorem}
+
+\begin{titlepage}
+
+    \begin{center}
+        \vspace*{2.5in}
+            \huge
+            \textbf{{Homework 4}}\\
+            \large
+            \textbf{Numerical PDEs}\\
+    \end{center}
+    ~\vfill
+    \noindent \textsc{Colorado School of Mines}\\
+    \textsc{Department of Applied Mathematics and Statistics}\\
+    
+    \vspace{1cm}
+    \noindent \textsc{\textbf{AUTHOR INFORMATION}}\\
+    \noindent Hugh Scribner\footnote{Computational and Applied Mathematics}\\ 
+    \vspace{1mm}
+    
+\end{titlepage}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\newpage
+\section{Problem 1}
+ \begin{tcolorbox}
+        \textbf{Problem Statement:}\\
+        Solve the unmodified Allen Cahn equation with a time horizon of 50s using operator splitting.
+    \end{tcolorbox}
+    
+    \textbf{Solution:}\\
+    This homework will investigate various formulations and solutions to the Allen-Cahn non-linear partial differential equation.
+    \begin{equation}
+        \Phi_t = \epsilon^2 \nabla^2 \Phi - F'(\Phi); \quad F(\Phi) = \frac{((\Phi^2-1)^2}{4}
+    \end{equation}
+
+    Solving (1) on a [0,1] $\times$ [0,1] box to t = 50 using finite differences and operator splitting gives the image below:
+
+    \begin{figure}[H]
+        \begin{centering}
+            \centering
+                \includegraphics[scale=.7]{Figure_1.png}
+                \caption{Finite difference solution to the Allen-Cahn differential equation. Here yellow, corresponding to a numerical value of 1, represents one phase, say oil, while the blue, corresponidng to a value of -1 represents a second phase, water for example.}
+        \end{centering}
+    \end{figure}
+
+    the above solution was found using a step size of h = .0025 in both the spatial and temporal domains. The simulation took a hot sec to run.
+    
+\newpage
+\section{Problem 2}
+ \begin{tcolorbox}
+        \textbf{Problem Statement:}\\
+        Fresh out of the box, Allen-Cahn does not preserve mass. Show that a modified Allen-Cahn equation can be derived that will conserve mass. Implement this formulation numerically and make a plot that shows the new model does indeed conserve mass.        
+    \end{tcolorbox}
+    
+    \textbf{Solution:}\\
+        One key issue with the solution in the previous section is it does not conserve mass within the control volume of the box (and it really had ought to, since we set zero flux boundary conditions). One way to address this is to introduce a total mass conservation term to the Allen-Cahn formulation:
+
+        \begin{equation}
+            \Phi_t = \epsilon^2 \nabla^2 \Phi - F'(\Phi) + \beta(t)\sqrt{F(\Phi)}; \quad F(\Phi) = \frac{((\Phi^2-1)^2}{4},
+        \end{equation}
+
+        where
+        
+        \begin{equation}
+            \beta(t) = \frac{\int_\Omega F'(\Phi)}{\int_\Omega \sqrt{F'(\Phi)}}.
+        \end{equation}
+
+        We can show that this  by integrating through the modified Allen-Cahn equation through the domain and substituting for $\beta(t)$. (Note: you can pull beta(t) out of the spatial volume integral.)
+
+        \begin{align}
+            \frac{d}{dt}\int_\Omega \Phi &= \int_\Omega \epsilon^2\nabla^2\Phi - \int_\Omega F'(\Phi) + \frac{\int_\Omega F'(\Phi)}{\int_\Omega \sqrt{F'(\Phi)}}\int_\Omega \sqrt{F'(\Phi)} \\
+            &= \epsilon^2\int_\Omega \nabla \cdot \nabla \Phi \\
+            &= \epsilon^2 \int_{\partial\Omega} \nabla \Phi \cdot \hat{n}
+        \end{align}
+    
+        Including $\beta$ allows for the only source of leakage of mass in the system to be due to the neumann conditions along the boundary. For the sake of the simulations being explored in this homework, we have set homogeneous neumann boundary conditions, so the expected change in total mass in time is expected to be 0. Introducing the above term to the simulation and plotting the average phase of the system (this is equivalent to total mass) we can see that the modification does enforce conservation of mass:
+
+        \begin{figure}[H]
+        \begin{centering}
+            \centering
+                \includegraphics[scale=.7]{mass_plot.png}
+                \caption{The above plot shows the unmodified Allen-Cahn equation (blue) and the mass conservative Allen-Cahn equation (Orange).}
+        \end{centering}
+        \end{figure}
+
+        This does impact the final solution for the Allen-Cahn system. Using a smaller step size of h=.005 for both time and spatial discretizations we find the following solutions:
+
+        
+
+\newpage
+\section{Problem 2}
+ \begin{tcolorbox}
+        \textbf{Problem Statement:}\\
+        Do something cool!        
+    \end{tcolorbox}
+
+\end{document}
