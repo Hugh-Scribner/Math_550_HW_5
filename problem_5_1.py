@@ -2,24 +2,52 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.sparse as spa
 import scipy.sparse.linalg as spla
-import sys
-from scipy.integrate import RK45
+from matplotlib.animation import FuncAnimation, FFMpegWriter, PillowWriter
 
 def main():
     # Problem 1
-    test = cahnSolver(402, 1, 50, seed = 100)
-    colormap = "viridis"
+    # Get a picture of the naive solver
+    rnseed = 101
+    N = 202
+    test = cahnSolver(N, 1, 50, seed = rnseed)
+    colormap = "magma"
 
     fig, ax = plt.subplots(figsize=(6, 5))
-    pcm = ax.pcolormesh(test[0], test[1], test[2], cmap=colormap, shading="auto")
+    pcm = ax.pcolormesh(test[0], test[1], test[3], cmap=colormap, shading="auto")
     fig.colorbar(pcm, ax=ax, label="f")
     ax.set_aspect("equal")
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_title("t = 50")
-    plt.show()
+    plt.savefig("problem_1.png", dpi=300, bbox_inches="tight")
 
     # Problem 2
+    # Get a picture of what the new solution looks like
+    test = cahnSolver(N, 1, 50, seed = rnseed, save_states=True)       
+    con_test = conservativeCahnSolver(N, 1, 50, seed = rnseed, save_states=True)
+    fig, ax = plt.subplots(figsize=(6, 5))
+    pcm = ax.pcolormesh(con_test[0], con_test[1], con_test[3][-1], cmap=colormap, shading="auto")
+    fig.colorbar(pcm, ax=ax, label="f")
+    ax.set_aspect("equal")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_title("t = 50")
+    plt.savefig("problem2_1.png", dpi=300, bbox_inches="tight")
+
+    #Plot mass over Time
+    m_bad = get_mass(test[3])
+    m_fix = get_mass(con_test[3])
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(test[2], m_bad / N**2, label="Base AC")
+    ax.plot(test[2], m_fix / N**2, label="MC AC")
+    ax.set_xlabel("t")
+    ax.set_ylabel("mean of u")
+    ax.legend()
+    plt.savefig("mass_plot.png", dpi=300, bbox_inches="tight")
+    plt.savefig("mass_plot.png", dpi=300, bbox_inches="tight")
+
+    make_movie(con_test, "conservative_ac.gif")
 
 def make_ic(seed, eps, N):
    # set up random number generator
@@ -29,11 +57,7 @@ def make_ic(seed, eps, N):
     return u0
 
 def get_mass(U):
-    num_samples = len(U)
-    m = np.zeros((num_samples,))
-    for i in range(num_samples):
-        m[i] = sum(U[i])
-    return m
+    return np.array([np.sum(Ui) for Ui in U])
 
 def laplacian_no_flux_2d(N, L):
     """
@@ -119,9 +143,10 @@ def cahnSolver(N, l, t_max, seed = 0, t_steps=None, eps = None, save_states = Fa
         if save_states:
             u.append(u_temp.reshape(N_trunc,N_trunc)) 
         t += dt
-    t_vec = np.linspace(0,t, t_steps, endpoint=True)
+    t_vec = np.linspace(0,t, t_steps + 1)
+    if save_states:
+        return [xx,yy,t_vec, u]
     sol = [xx,yy,t_vec, u_temp.reshape(N_trunc,N_trunc)]
-    print(t)
     return sol
 
 def conservativeCahnSolver(N, l, t_max, seed = 0, t_steps=None, eps = None, save_states = False):
@@ -183,9 +208,47 @@ def conservativeCahnSolver(N, l, t_max, seed = 0, t_steps=None, eps = None, save
         if save_states:
             u.append(u_temp.reshape(N_trunc,N_trunc)) 
         t += dt
-    t_vec = np.linspace(0,t, t_steps, endpoint=True)
+    t_vec = np.linspace(0,t, t_steps + 1)
+    if save_states:
+        return [xx,yy,t_vec,u]
     sol = [xx,yy,t_vec, u_temp.reshape(N_trunc,N_trunc)]
     return sol
+
+def make_movie(sol, filename="cahn.gif", n_frames=200, fps=20,
+               cmap="magma", fixed_scale=True):
+    """
+    sol : solver output with save_states=True -> [xx, yy, t_vec, snapshots]
+    n_frames : number of frames to render (subsampled uniformly in time)
+    """
+    xx, yy, t_vec, states = sol
+    x, y = xx[:, 0], yy[0, :]          # 1D coordinate vectors
+    idx = np.linspace(0, len(states) - 1, n_frames).astype(int)
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    kw = dict(vmin=-1, vmax=1) if fixed_scale else {}
+    pcm = ax.pcolormesh(x, y, states[0], cmap=cmap, shading="auto", **kw)
+    fig.colorbar(pcm, ax=ax, label="u")
+    ax.set_aspect("equal")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    title = ax.set_title(f"t = {t_vec[0]:.2f}")
+
+    def update(k):
+            i = idx[k]
+            pcm.set_array(states[i].ravel())
+            if not fixed_scale:
+                pcm.set_clim(states[i].min(), states[i].max())
+            title.set_text(f"t = {t_vec[i]:.2f}")
+            return pcm, title
+
+    anim = FuncAnimation(fig, update, frames=len(idx), blit=False)
+
+    if filename.endswith(".mp4"):
+        writer = FFMpegWriter(fps=fps)
+    else:                               # .gif
+        writer = PillowWriter(fps=fps)
+    anim.save(filename, writer=writer, dpi=150)
+    plt.close(fig)
 
 if __name__ == "__main__":
     main()
