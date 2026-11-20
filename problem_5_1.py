@@ -9,31 +9,32 @@ def main():
     # Get a picture of the naive solver
     rnseed = 101
     N = 202
-    test = cahnSolver(N, 1, 50, seed = rnseed)
-    colormap = "magma"
+    colormap = "viridis"
 
-    fig, ax = plt.subplots(figsize=(6, 5))
-    pcm = ax.pcolormesh(test[0], test[1], test[3], cmap=colormap, shading="auto")
-    fig.colorbar(pcm, ax=ax, label="f")
-    ax.set_aspect("equal")
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_title("t = 50")
-    plt.savefig("problem_1.png", dpi=300, bbox_inches="tight")
+    # Solve each system once, keeping snapshots
+    test = cahnSolver(N, 1, 50, seed=rnseed, save_states=True)
+    con_test = conservativeCahnSolver(N, 1, 50, seed=rnseed, save_states=True)
 
-    # Problem 2
-    # Get a picture of what the new solution looks like
-    test = cahnSolver(N, 1, 50, seed = rnseed, save_states=True)       
-    con_test = conservativeCahnSolver(N, 1, 50, seed = rnseed, save_states=True)
-    fig, ax = plt.subplots(figsize=(6, 5))
-    pcm = ax.pcolormesh(con_test[0], con_test[1], con_test[3][-1], cmap=colormap, shading="auto")
-    fig.colorbar(pcm, ax=ax, label="f")
-    ax.set_aspect("equal")
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_title("t = 50")
-    plt.savefig("problem2_1.png", dpi=300, bbox_inches="tight")
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5), sharex=True, sharey=True,
+                             constrained_layout=True)
 
+    panels = [
+        (axes[0], test,     "Unmodified Allen-Cahn"),
+        (axes[1], con_test, "Modified Allen-Cahn"),
+    ]
+
+    for ax, sol, title in panels:
+        pcm = ax.pcolormesh(sol[0], sol[1], sol[3][-1], cmap=colormap,
+                            shading="auto")
+        ax.set_aspect("equal")
+        ax.set_xlabel("x")
+        ax.set_title(title)
+
+    axes[0].set_ylabel("y")
+    fig.colorbar(pcm, ax=axes, label="f", shrink=0.8)
+    fig.savefig("problem_1_2_comparison.png", dpi=300, bbox_inches="tight")
+
+    print("You can stop code now")
     #Plot mass over Time
     m_bad = get_mass(test[3])
     m_fix = get_mass(con_test[3])
