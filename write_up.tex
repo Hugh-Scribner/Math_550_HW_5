@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{eso-pic}
+\usepackage[top=3cm,bottom=3cm,left=2.5cm,right=2.5cm,headsep=10pt,letterpaper]{geometry}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{mathrsfs, amsmath}
+\usepackage{listings}
+\usepackage{indentfirst}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\lstset{language = MATLAB}
+\usepackage{abstract}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+
+\begin{document}
+
+\newpage
+\newpage
+\newtheorem{theorem}{Theorem}
+
+\begin{titlepage}
+
+    \begin{center}
+        \vspace*{2.5in}
+            \huge
+            \textbf{{Homework 4}}\\
+            \large
+            \textbf{Numerical PDEs}\\
+    \end{center}
+    ~\vfill
+    \noindent \textsc{Colorado School of Mines}\\
+    \textsc{Department of Applied Mathematics and Statistics}\\
+    
+    \vspace{1cm}
+    \noindent \textsc{\textbf{AUTHOR INFORMATION}}\\
+    \noindent Hugh Scribner\footnote{Computational and Applied Mathematics}\\ 
+    \vspace{1mm}
+    
+\end{titlepage}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\newpage
+\section{Problem 1}
+ \begin{tcolorbox}
+        \textbf{Problem Statement:}\\
+        Solve the unmodified Allen Cahn equation with a time horizon of 50s using operator splitting.
+    \end{tcolorbox}
+    
+    \textbf{Solution:}\\
+    This homework will investigate various formulations and solutions to the Allen-Cahn non-linear partial differential equation.
+    \begin{equation}
+        \Phi_t = \epsilon^2 \nabla^2 \Phi - F'(\Phi); \quad F(\Phi) = \frac{((\Phi^2-1)^2}{4}
+    \end{equation}
+
+    Solving (1) on a [0,1] \times [0,1] box to t = 50 using finite differences and operator splitting gives the image below:
+
+    \begin{figure}[H]
+        \begin{centering}
+            \centering
+                \includegraphics[scale=.7]{Images/Figure_1.png}
+                \caption{Convergence plots for each method of interest are shown above. Convergence tests for methods ran on 64x64 grids are shown in solid lines, while convergence tests for 128x128 grids are shown as dashed. RK5, as an adaptive method, does not use a fixed time step, and it's performance on each grid is shown as a flat "threshold" curve.}
+        \end{centering}
+    \end{figure}
+    
+\newpage
+\section{Problem 2}
+ \begin{tcolorbox}
+        \textbf{Problem Statement:}\\
+        Fresh out of the box, Allen Cahn does not preserve mass. Show that a modified allen cahn equation can be derived that will conserve mass. Implement this formulation numerically and make a plot that shows the new model does indeed conserve mass.        
+    \end{tcolorbox}
+    
+    \textbf{Solution:}\\
+
+
+
+\newpage
+\section{Problem 2}
+ \begin{tcolorbox}
+        \textbf{Problem Statement:}\\
+        Do something cool!        
+    \end{tcolorbox}
+
+\end{document}
