@@ -106,7 +106,32 @@
             &= \epsilon^2 \int_{\partial\Omega} \nabla \Phi \cdot \hat{n}
         \end{align}
     
-        Including $\beta$ allows for the only source of leakage of mass in the system to be due to the neumann conditions along the boundary. For the sake of the simulations being explored in this homework, we have set homogeneous neumann boundary conditions, so the expected change in total mass in time is expected to be 0. Introducing the above term to the simulation and plotting the average phase of the system (this is equivalent to total mass) we can see that the modification does enforce conservation of mass:
+        Including $\beta$ allows for the only source of leakage of mass in the system to be due to the neumann conditions along the boundary. For the sake of the simulations being explored in this homework, we have set homogeneous neumann boundary conditions, so the expected change in total mass in time is expected to be 0.
+
+        As it turns out, computing $\beta(t)$ as defined in (3) is not straight forward, since you can't just plug it in since it does not intrinsically depend on the intermediary operator splitting step. Instead, we can write the operator splitting step as:
+        \begin{equation}
+            \frac{\Phi^{n+1} - \Phi^{**}}{\Delta t} = \beta^{n+1}\sqrt{F(\Phi**)}
+        \end{equation}
+
+        integrating both sides through over the domain and solving for $\beta$ gives
+
+        \begin{equation}
+            \beta^{n+1} = \frac{\int_\Omega{\frac{\Phi^{n+1} - \Phi^{**}}{\Delta t}}}{\int_\Omega \sqrt{F(\Phi^{**})}}
+        \end{equation}
+
+        Now recall, that per (4)-(6), mass is conserved, or the domain integral of $\Phi^{n+1}$ is equivalent to the domain integral of $\Phi^{0}$ so we can find $\beta$ as 
+
+        \begin{equation}
+            \beta^{n+1} = \frac{\int_\Omega{\frac{\Phi^{0} - \Phi^{**}}{\Delta t}}}{\int_\Omega \sqrt{F(\Phi^{**})}}.
+        \end{equation}
+
+        This formulation can easily be applied in the numerical solver by applying a trapezoid quadrature to approximate each of the integral terms.
+
+        \begin{equation}
+            \beta^{n+1} = \frac{1}{\Delta t}\frac{\sum\limits_{i,j}{\Phi^{0} - \Phi^{**}}}{\sum\limits_{i,j} \sqrt{F(\Phi^{**})}}.
+        \end{equation}
+        
+        Introducing the above term to the simulation and plotting the average phase of the system (this is equivalent to total mass) we can see that the modification does enforce conservation of mass:
 
         \begin{figure}[H]
         \begin{centering}
@@ -121,16 +146,20 @@
         \begin{figure}[H]
         \begin{centering}
             \centering
-                \includegraphics[scale=.7]{mass_plot.png}
-                \caption{The above plot shows the unmodified Allen-Cahn equation (blue) and the mass conservative Allen-Cahn equation (Orange).}
+                \includegraphics[scale=.6]{problem_1_2_comparison.png}
+                \caption{Solutions to unmodified and modified Allen-Cahn Equations.}
         \end{centering}
         \end{figure}
 
+        Notice that the blue regions of the plot remain more interconnected under the updated Allen-Cahn equation.
+
 \newpage
-\section{Problem 2}
+\section{Problem 3}
  \begin{tcolorbox}
         \textbf{Problem Statement:}\\
         Do something cool!        
     \end{tcolorbox}
+
+    For my Charlie's Rule, I made an animation of the Allen-Cahn system! Check it out at conservative\_ax.gif in the git repo! Something that the video makes clear that the still images did not show is that even though the updated Allen-Cahn model does conserve mass, it still allows for some unrealistic mass transport phenomena. Watch as some of the centers of water shink out of existence! While for some chemical reactions this may be possible, as some reactants convert to products, but in the case of water and oil it is very non-physical to see one phase transition to another one!
 
 \end{document}
